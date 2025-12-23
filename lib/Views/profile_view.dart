@@ -1,7 +1,9 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 import '../Core/Constants/colors.dart';
 import '../Controller/profile_controller.dart';
 
@@ -20,40 +22,70 @@ class ProfileView extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(
-          color: Colors.white, // 👈 Back button color
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            /// 👤 PROFILE IMAGE
             Obx(
               () => GestureDetector(
                 onTap: controller.pickProfileImage,
                 child: CircleAvatar(
+                  backgroundColor: AppColors.primary.withOpacity(0.50),
                   radius: 60,
                   backgroundImage: controller.profileImage.value.isNotEmpty
                       ? FileImage(File(controller.profileImage.value))
-                            as ImageProvider
-                      : const AssetImage('assets/images/profile.png'),
+                      : const AssetImage('assets/images/profile.png')
+                            as ImageProvider,
                 ),
               ),
             ),
+
             const SizedBox(height: 20),
-            _buildTextField("Name", controller.nameController),
-            _buildTextField("Email", controller.emailController),
-            _buildTextField("CNIC", controller.cnicController),
-            _buildTextField("Phone Number", controller.phoneController),
+
+            /// 🧾 FIELDS WITH ICONS
+            _buildTextField(
+              hint: "Name",
+              controller: controller.nameController,
+              icon: Icons.person,
+            ),
+            _buildTextField(
+              hint: "Email",
+              controller: controller.emailController,
+              icon: Icons.email,
+            ),
+            _buildTextField(
+              hint: "CNIC",
+              controller: controller.cnicController,
+              icon: Icons.credit_card,
+            ),
+            _buildTextField(
+              hint: "Phone Number",
+              controller: controller.phoneController,
+              icon: Icons.phone,
+            ),
+
             const SizedBox(height: 10),
+
+            /// 🚻 GENDER
             _buildGenderSelector(),
+
+            /// 📅 DOB
             _buildDateOfBirthField(context),
+
             const SizedBox(height: 30),
+
+            /// 🔘 UPDATE BUTTON
             ElevatedButton(
               onPressed: controller.updateProfile,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: const Text(
                 "Update",
@@ -66,54 +98,115 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController ctrl) {
+  // ===================== TEXT FIELD =====================
+  Widget _buildTextField({
+    required String hint,
+    required TextEditingController controller,
+    required IconData icon,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
-        controller: ctrl,
+        controller: controller,
         decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
+          hintText: hint,
+          prefixIcon: Icon(icon, color: AppColors.primary),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
         ),
       ),
     );
   }
 
+  // ===================== GENDER =====================
   Widget _buildGenderSelector() {
     return Obx(
-      () => Row(
-        children: [
-          const Text("Gender:"),
-          const SizedBox(width: 20),
-          ChoiceChip(
-            label: const Text("Male"),
-            selected: controller.gender.value == "Male",
-            onSelected: (val) {
-              if (val) controller.gender.value = "Male";
-            },
-          ),
-          const SizedBox(width: 10),
-          ChoiceChip(
-            label: const Text("Female"),
-            selected: controller.gender.value == "Female",
-            onSelected: (val) {
-              if (val) controller.gender.value = "Female";
-            },
-          ),
-        ],
+      () => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            const Text(
+              "Gender:",
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 20),
+
+            ChoiceChip(
+              label: Text(
+                "Male",
+                style: TextStyle(
+                  color: controller.gender.value == "Male"
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
+              selected: controller.gender.value == "Male",
+              selectedColor: AppColors.primary,
+              backgroundColor: AppColors.background,
+              onSelected: (val) {
+                if (val) controller.gender.value = "Male";
+              },
+            ),
+
+            const SizedBox(width: 10),
+
+            ChoiceChip(
+              label: Text(
+                "Female",
+                style: TextStyle(
+                  color: controller.gender.value == "Female"
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
+              selected: controller.gender.value == "Female",
+              selectedColor: AppColors.primary,
+              backgroundColor: AppColors.background,
+              onSelected: (val) {
+                if (val) controller.gender.value = "Female";
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // ===================== DATE OF BIRTH =====================
   Widget _buildDateOfBirthField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
         controller: controller.dobController,
         readOnly: true,
-        decoration: const InputDecoration(
-          labelText: "Date of Birth",
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          hintText: "Date of Birth",
+          prefixIcon: const Icon(
+            Icons.calendar_today,
+            color: AppColors.primary,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
         ),
         onTap: () async {
           DateTime? picked = await showDatePicker(
@@ -124,6 +217,7 @@ class ProfileView extends StatelessWidget {
             firstDate: DateTime(1900),
             lastDate: DateTime.now(),
           );
+
           if (picked != null) {
             controller.dobController.text = DateFormat(
               'yyyy-MM-dd',
